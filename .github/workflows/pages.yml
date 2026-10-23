@@ -25,6 +25,8 @@ jobs:
         uses: actions/checkout@v6
       - name: Prepare site
         run: unzip -q site.zip -d _site
+      - name: Apply checked site updates
+        run: python3 scripts/apply-site-updates.py _site site-updates.json
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site
