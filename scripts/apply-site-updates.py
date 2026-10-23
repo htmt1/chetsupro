@@ -11,7 +11,7 @@ def apply(root,manifest):
     if data['schema']!='chetsupro-pages-updates/1':raise ValueError('Unknown update manifest')
     import re
     for include in data.get('includes',[]):
-        if not re.fullmatch(r'site-updates-(model-data|model3d)\.json',include['path']):raise ValueError('Invalid update part')
+        if not re.fullmatch(r'site-updates-(model-data|model3d|motion-(ar|battle|emotion|hero))\.json',include['path']):raise ValueError('Invalid update part')
         content=(manifest.parent/include['path']).read_bytes()
         if hashlib.sha256(content).hexdigest()!=include['sha256']:raise ValueError('Invalid update part hash')
         part=json.loads(content)
@@ -19,7 +19,7 @@ def apply(root,manifest):
         data['changes'].extend(part['changes'])
     for update in data['changes']:
         name=update['path']
-        if name not in ('basic.html','birth.html','geki.html','index.html') and not re.fullmatch(r'(model3d\.[a-f0-9]{12}\.js|model-data\.[a-f0-9]{12}\.json)',name):raise ValueError('Unexpected update path')
+        if name not in ('basic.html','birth.html','geki.html','index.html') and not re.fullmatch(r'(model3d\.[a-f0-9]{12}\.js|model-data\.[a-f0-9]{12}\.json|model-motion-(ar|battle|emotion|hero)\.[a-f0-9]{12}\.json)',name):raise ValueError('Unexpected update path')
         target=root/name;digest=hashlib.sha256(target.read_bytes()).hexdigest() if target.exists() else None
         if digest==update['after']:continue
         if digest!=update['before']:raise ValueError('Base ZIP changed: regenerate or remove site-updates.json before publishing '+name)
