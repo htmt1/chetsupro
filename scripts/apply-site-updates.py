@@ -15,7 +15,7 @@ def apply(root,manifest):
         content=(manifest.parent/include['path']).read_bytes()
         if hashlib.sha256(content).hexdigest()!=include['sha256']:raise ValueError('Invalid update part hash')
         part=json.loads(content)
-        if part['schema']!=data['schema'] or part['version']!=data['version'] or part.get('includes'):raise ValueError('Invalid nested update')
+        if part['schema']!=data['schema'] or part['version']!=include.get('version',data['version']) or part.get('includes'):raise ValueError('Invalid nested update')
         data['changes'].extend(part['changes'])
     for update in data['changes']:
         name=update['path']
