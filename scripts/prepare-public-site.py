@@ -21,6 +21,9 @@ def prepare(root):
         raise ValueError('Expected the chetsupro HTML shell')
     # This is a public presentation label, not an access-control setting.
     text = re.sub(r'<span class="private-label">自分用</span>', '', text)
+    # Navigation must preserve the descriptive title after JavaScript renders.
+    text = re.sub(r'''document\.title\s*=\s*(['"])chetsupro\1\s*;''',
+                  lambda _: 'document.title = ' + json.dumps(TITLE, ensure_ascii=False) + ';', text)
     text = re.sub(r'<!-- public-search:start -->.*?<!-- public-search:end -->',
                   '', text, flags=re.S)
     structured = {
