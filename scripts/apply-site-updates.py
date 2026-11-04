@@ -6,7 +6,7 @@ The manifest is generated from the exact previous public ZIP and a checked build
 import base64,hashlib,json,subprocess,sys,zlib
 from pathlib import Path
 
-def apply(root,manifest):
+def apply(root,manifest,skip_paths=()):
     data=json.loads(manifest.read_text())
     if data['schema']!='chetsupro-pages-updates/1':raise ValueError('Unknown update manifest')
     import re
@@ -20,6 +20,7 @@ def apply(root,manifest):
     for update in data['changes']:
         name=update['path']
         if name not in ('basic.html','birth.html','geki.html','index.html') and not re.fullmatch(r'(model3d\.[a-f0-9]{12}\.js|model-data\.[a-f0-9]{12}\.json|model-motion-(ar|battle|emotion|hero)\.[a-f0-9]{12}\.json)',name):raise ValueError('Unexpected update path')
+        if name in skip_paths:continue
         target=root/name;digest=hashlib.sha256(target.read_bytes()).hexdigest() if target.exists() else None
         if digest==update['after']:continue
         if digest!=update['before']:raise ValueError('Base ZIP changed: regenerate or remove site-updates.json before publishing '+name)
@@ -33,4 +34,16 @@ def apply(root,manifest):
         if hashlib.sha256(target.read_bytes()).hexdigest()!=update['after']:raise ValueError('Updated file did not match the checked build: '+name)
     print('Applied checked site updates: '+data['version'])
 
-if __name__=='__main__':apply(Path(sys.argv[1]),Path(sys.argv[2]))
+if __name__=='__main__':
+    root,manifest=Path(sys.argv[1]),Path(sys.argv[2])
+    extra=manifest.with_name('site-updates-geki-flow.json')
+    # The base patch remains immutable; apply the checked incremental release after it.
+    skip=set()
+    if extra.exists():
+        addon=json.loads(extra.read_text())
+        for update in addon['changes']:
+            target=root/update['path']
+            if target.exists() and hashlib.sha256(target.read_bytes()).hexdigest()==update['after']:skip.add(update['path'])
+    apply(root,manifest,skip)
+    if extra.exists():apply(root,extra)
+
