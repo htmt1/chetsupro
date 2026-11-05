@@ -19,7 +19,7 @@ def apply(root,manifest,skip_paths=()):
         data['changes'].extend(part['changes'])
     for update in data['changes']:
         name=update['path']
-        if name not in ('basic.html','birth.html','geki.html','index.html') and not re.fullmatch(r'(model3d\.[a-f0-9]{12}\.js|model-data\.[a-f0-9]{12}\.json|model-motion-(ar|battle|emotion|hero)\.[a-f0-9]{12}\.json)',name):raise ValueError('Unexpected update path')
+        if name not in ('basic.html','birth.html','geki.html','index.html','geki-device-test.html','geki-device-test.js','geki-device-worker.js') and not re.fullmatch(r'(model3d\.[a-f0-9]{12}\.js|model-data\.[a-f0-9]{12}\.json|model-motion-(ar|battle|emotion|hero)\.[a-f0-9]{12}\.json)',name):raise ValueError('Unexpected update path')
         if name in skip_paths:continue
         target=root/name;digest=hashlib.sha256(target.read_bytes()).hexdigest() if target.exists() else None
         if digest==update['after']:continue
