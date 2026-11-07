@@ -30,3 +30,18 @@ for (let n = 0; n <= 400; n++) for (let t = 0; t < 20; t++) {
   if (actual) assert.equal(actual.births * 2 + actual.boxes * 8 + actual.transit, n);
 }
 console.log('PASS: ' + checked + ' scripts parsed; mixed planner agrees with 8,020 exhaustive cases.');
+
+// Provided hardware observation: fast start, six previews, first entry at draw 43.
+const core = scripts.find(([,attrs,code]) => !attrs.includes("type=") && code.includes("class RareEngine"));
+const engineContext = { module: {exports:{}} }; vm.createContext(engineContext);vm.runInContext(core[2],engineContext);
+const rstart=html.indexOf('class GekiStateRng {'),rend=html.indexOf('class GekiMasterScanner',rstart);
+vm.runInContext(html.slice(rstart,rend)+';this.Rng=GekiStateRng;',engineContext);
+const rng=new engineContext.Rng([0,0,0,0]);rng.init(3258188431);rng.skip(42);const pool=rng.next();assert.equal(pool,0xC73BC117);
+const engine=new engineContext.module.exports.RareEngine(JSON.parse(html.match(/<script id="embeddedData"[^>]*>([\s\S]*?)<\/script>/)[1]));
+assert.equal(engine.generate(pool,[])[2].name,'しずく');
+for(const [target,births,boxes] of [[43,0,0],[45,1,0],[51,0,1],[53,1,1]]) {
+ const out=shrineBoxPlan({target,current:39,overhead:4,boxTransit:0});assert.equal(out.births,births);assert.equal(out.boxes,boxes);
+}
+assert.equal(shrineBoxPlan({target:44,current:39,overhead:4,boxTransit:0}),null);
+assert.equal(shrineBoxPlan({target:43,current:39,overhead:4,boxTransit:0}).remaining,0);
+console.log('PASS: supplied fast-route pool and 43/45/51/53 step counts');
