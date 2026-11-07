@@ -45,24 +45,30 @@ for(const [target,births,boxes] of [[43,0,0],[45,1,0],[51,0,1],[53,1,1]]) {
 assert.equal(shrineBoxPlan({target:44,current:39,overhead:4,boxTransit:0}),null);
 assert.equal(shrineBoxPlan({target:43,current:39,overhead:4,boxTransit:0}).remaining,0);
 console.log('PASS: supplied fast-route pool and 43/45/51/53 step counts');
-const {capturePlan,captureText}=context.module.exports;
-// Independent exact DP includes transit once on the first box use.
+
+const {capturePlan,captureText,captureRows}=context.module.exports;
+// Independent exact DP: opening the book once costs 10 draws / 4 inputs;
+// a cursor movement while it remains open costs 10 draws / 1 input.
 for(const transit of [null,0,1,2,3,4,8,17]) {
- const size=2000,cost=Array.from({length:size+1},()=>[Infinity,Infinity]);cost[0][0]=0;
- for(let n=0;n<=size;n++)for(let flag=0;flag<2;flag++)for(const [draws,presses,box] of [[2,2,0],[8,2,1],[10,4,0],[20,5,0],[30,6,0]]){
-  if(box&&transit===null)continue;
-  const dest=n+draws+(box&&!flag?transit:0);if(dest<=size)cost[dest][flag||box]=Math.min(cost[dest][flag||box],cost[n][flag]+presses);
+ const size=2000,cost=Array.from({length:size+1},()=>Array(4).fill(Infinity));cost[0][0]=0;
+ for(let n=0;n<=size;n++)for(let flags=0;flags<4;flags++){
+  const moves=[[2,2,flags]];
+  if(transit!==null)moves.push([8+(flags&1?0:transit),2,flags|1]);
+  moves.push([10,flags&2?1:4,flags|2]);
+  for(const [draws,inputs,next] of moves)if(n+draws<=size)cost[n+draws][next]=Math.min(cost[n+draws][next],cost[n][flags]+inputs);
  }
  for(let n=0;n<=size;n++){
   const p=capturePlan({target:n+43,current:39,overhead:4,boxTransit:transit});const expected=Math.min(...cost[n]);
-  assert.equal(p?.presses??Infinity,expected,'book mix at '+n+' transit '+transit);
-  if(p)assert.equal(p.births*2+p.boxes*8+p.book0*10+p.book1*20+p.book2*30+p.transit,n);
+  assert.equal(p?.presses??Infinity,expected,'continuous book at '+n+' transit '+transit);
+  if(p)assert.equal(p.births*2+p.boxes*8+(p.bookVisits?10+p.scrolls*10:0)+p.transit,n);
  }
 }
-for(const [n,key] of [[10,'book0'],[20,'book1'],[30,'book2']]){
- const p=capturePlan({target:43+n,current:39,overhead:4,boxTransit:0});assert.equal(p[key],1);assert.equal(p.presses,{'book0':4,'book1':5,'book2':6}[key]);
+for(const [n,scrolls] of [[10,0],[20,1],[30,2]]){
+ const p=capturePlan({target:43+n,current:39,overhead:4,boxTransit:0});assert.equal(p.bookVisits,1);assert.equal(p.scrolls,scrolls);
 }
-const twenty=capturePlan({target:63,current:39,overhead:4,boxTransit:0});assert(captureText(twenty).includes('1スクロール'));assert(!captureText(twenty).includes('2スクロール'));
-const large=capturePlan({target:4000000043,current:39,overhead:4,boxTransit:0});assert.equal(large.births*2+large.boxes*8+large.book0*10+large.book1*20+large.book2*30,4000000000);
-console.log('PASS: book routes match 16,008 independent exact cases; 20 draws says 1 scroll');
-console.log('801 example:',captureText(capturePlan({target:801,current:39,overhead:4,boxTransit:0})));
+const screenshot=capturePlan({target:9083,current:39,overhead:4,boxTransit:0});assert.equal(screenshot.bookVisits,1);assert.equal(screenshot.scrolls,903);assert.equal(screenshot.births,0);assert.equal(screenshot.boxes,0);
+const rows=captureRows(screenshot);assert.equal(rows.length,1);assert.equal(rows[0].unit,'スクロール');assert.equal(rows[0].count,903);assert(!captureText(screenshot).includes('セット'));assert(!captureText(screenshot).includes('出生確認'));
+const large=capturePlan({target:4000000043,current:39,overhead:4,boxTransit:0});assert.equal(large.births*2+large.boxes*8+(large.bookVisits?10+large.scrolls*10:0),4000000000);
+console.log('PASS: continuous book matches 16,008 exact cases; 9083 uses one opening and 903 scrolls');
+
+const openOnly=captureRows(capturePlan({target:53,current:39,overhead:4,boxTransit:0}));assert.equal(openOnly[0].count,1);assert.equal(openOnly[0].unit,'回');assert.equal(openOnly[0].label,'記録手帳を開閉');
