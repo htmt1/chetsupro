@@ -1,0 +1,21 @@
+:root{--reset-bg:var(--surface);--reset-line:var(--line);--reset-ink:var(--ink)}
+:root[data-theme=dark]{--reset-bg:var(--surface);--reset-line:var(--line);--reset-ink:var(--ink)}
+button.primary:not([data-save-destination]):not(:disabled){background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:650}
+button.primary:not([data-save-destination]):not(:disabled):hover{background:color-mix(in srgb,var(--accent) 84%,var(--ink));border-color:color-mix(in srgb,var(--accent) 84%,var(--ink));color:var(--surface)}
+button:disabled{background:var(--soft)!important;border-color:var(--line)!important;color:var(--muted)!important;box-shadow:none!important;opacity:.65;cursor:not-allowed}
+body button[data-save-destination]::after{display:none!important}
+.save-destination-legend{display:flex;flex-wrap:wrap;align-items:center;gap:4px 18px!important;margin:0 0 12px!important;padding:0 2px;font-size:12px!important;line-height:1.6}
+.save-destination-legend::before{content:"保存ボタンの色：";color:var(--muted)}
+.save-key{flex:0 0 auto!important;display:inline-flex!important;flex-wrap:nowrap!important;align-items:center;gap:5px!important;padding:0!important;background:none!important;border:0!important;border-radius:0!important}
+.save-key strong{font-size:12px!important;font-weight:650}
+.save-key>span{flex-basis:auto!important;padding-left:0!important;font-size:12px!important;color:var(--muted);opacity:1!important}
+.save-key::before{width:15px!important;height:15px!important;flex:0 0 15px!important}
+label.checkbox:not([hidden]){display:flex!important;align-items:flex-start;gap:8px;line-height:1.6}
+label.checkbox>input[type=checkbox]{flex:0 0 auto;width:18px!important;height:18px!important;min-height:0!important;margin:2px 0 0!important}
+.row:has(.filter-mode){align-items:flex-start!important}
+.filter-mode{justify-content:flex-start!important;gap:8px!important}
+.antenna-picker:has(>input:placeholder-shown)>.picker-clear{visibility:hidden}
+.ui-default-hint{display:none!important}
+.actions:has(>span){align-items:center}
+section[data-ui-results=empty] :is(.row:has(#parentPoolName),.actions:has(#selectAllParents),#parentSelectionCount,.tablewrap:has(#resultRows),.actions:has(#prevResults)){display:none!important}
+.row:has(.filter-mode)>button{align-self:flex-start;margin-top:calc(1.65em + 8px)}

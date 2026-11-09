@@ -1,0 +1,15 @@
+#siteSidebar{border-bottom:1px solid var(--line)}
+#nav #theme{position:sticky;right:0;z-index:1}
+.catalog-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start!important;gap:10px 18px}
+.catalog-controls .search-field{flex:1 1 320px;max-width:480px!important;padding:2px 12px}
+.catalog-controls>.filter-mode{justify-content:flex-start!important;margin:0!important}
+.filter-mode{justify-content:flex-start!important;gap:8px!important}
+@media (max-width:780px){
+:root #siteSidebar,:root[data-mobile-header] #siteSidebar{flex-wrap:nowrap!important;align-items:center!important;gap:8px!important;padding:6px 0 6px 12px!important}
+:root #siteSidebar .tool-name{width:auto!important;flex:0 0 auto;padding:0!important;margin:0!important;font-size:12px!important}
+:root #siteSidebar #nav{display:flex!important;flex-wrap:nowrap!important;flex:1 1 auto;min-width:0;width:auto!important;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;gap:4px!important;padding:2px 0!important}
+:root #siteSidebar #nav::-webkit-scrollbar{display:none}
+:root #siteSidebar #nav button{flex:0 0 auto;justify-content:flex-start;white-space:nowrap!important;min-height:40px!important;padding:8px 11px!important;font-size:13px!important;line-height:1.2!important}
+:root #siteSidebar #nav #theme{margin-left:auto;padding:8px 13px!important;font-size:0!important;background:var(--surface);box-shadow:-12px 0 10px -6px var(--surface)}
+:root #siteSidebar #nav #theme::before{width:18px!important;height:18px!important;flex-basis:18px!important}
+}
