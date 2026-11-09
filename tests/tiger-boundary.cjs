@@ -1,0 +1,7 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');const birth=fs.readFileSync('site/birth.html','utf8'),name=birth.match(/model3d\.[a-f0-9]{12}\.js/)[0],code=fs.readFileSync('site/'+name,'utf8');new vm.Script(code);
+const a=code.indexOf('function denpaPatternTexture'),b=code.indexOf('async function Wg',a),ctx={};vm.createContext(ctx);vm.runInContext(code.slice(a,b),ctx);
+const tex={wrapS:1000,wrapT:1000};ctx.denpaPatternTexture(tex,7);assert.equal(tex.wrapS,1002);assert.equal(tex.wrapT,1002);const other={wrapS:1000,wrapT:1000};ctx.denpaPatternTexture(other,6);assert.equal(other.wrapS,1000);
+for(let edge=-4;edge<=4;edge++)for(const size of [16,32,64])assert.equal(ctx.denpaTexturePixel(edge-1e-7,size,1002),ctx.denpaTexturePixel(edge+1e-7,size,1002));
+assert.notEqual(ctx.denpaTexturePixel(1-1e-7,64,1000),ctx.denpaTexturePixel(1+1e-7,64,1000));
+const index=fs.readFileSync('site/index.html','utf8'),portrait=index.match(/portrait-resources\.[a-f0-9]{12}\.js/)[0],p={window:{}};vm.createContext(p);vm.runInContext(fs.readFileSync('site/'+portrait,'utf8'),p);const masks=p.window.DenpaSharedPortrait.details.patterns;for(let head=0;head<40;head++)assert(masks[head][7].src.startsWith('data:image/png;base64,'));assert(code.includes('denpaTexturePixel(K,m.width,g.map.wrapS)'));
+console.log('PASS: tiger edges join on positive/negative UV boundaries; other patterns preserved; 40 head masks present');
