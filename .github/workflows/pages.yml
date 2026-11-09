@@ -29,6 +29,10 @@ jobs:
         run: python3 scripts/apply-site-updates.py _site site-updates.json
       - name: Remove private-use label
         run: python3 scripts/remove-private-label.py _site
+      - name: Apply UI polish
+        run: python3 scripts/apply-ui-polish.py _site
+      - name: Apply speedups
+        run: python3 scripts/apply-speedups.py _site
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site
